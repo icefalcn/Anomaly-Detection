@@ -1,5 +1,5 @@
 # Set file path
-setwd("~/Desktop/hmm/Powergrid/")
+setwd("~/Desktop/Anomaly-Detection/Powergrid/")
 
 # Read in data
 train <- read.csv("train.csv", header = TRUE)
@@ -10,7 +10,7 @@ Gap.col <- data.frame(X = train$Global_active_power[1:10000])
 #Tgap.col <- data.frame(test$Global_active_power[1:20000])
 
 # Replace 0 with NA
-#Gap.col[is.na(Gap.col)] <- 0
+Gap.col[is.na(Gap.col)] <- 0
 
 # Change data type
 N <- as.numeric(Gap.col$X)
@@ -23,7 +23,7 @@ library(mhsmm)
 
 # Build hmm with univariant data
 
-# Set state number based on 8000 data in graph
+# Set state number based on 10000 data in graph
 J <- 3
 
 # Set init value pi
@@ -47,7 +47,6 @@ hmm <- hmmfit(N, model, mstep = mstep.norm, maxit = 500)
 summary(hmm)
 
 #plot(hmm$loglik, type = 'l', ylab = "log-likelihood", xlab = "Iteration")
-
 yhat <- predict(hmm, N)
 plot(yhat)
 
