@@ -24,21 +24,36 @@ library(mhsmm)
 # Build hmm with univariant data
 
 # Set state number based on 10000 data in graph
-J <- 3
+J <- 9
 
 # Set init value pi
 #pi <- rep(1/J, J)
-pi <- c(0.1, 0.75, 0.15)
+pi <- c(0.111,0.050,0.081
+        ,0.090,0.075,0.035
+        ,0.250,0.170,0.138)
 
 # Build transition matrix A, entry by row
-A <- matrix(c(0.8, 0.5, 0.1, 0.05, 0.2, 0.5, 0.15, 0.3, 0.4), nrow = J)
+A <- matrix(c(0.8, 0.5, 0.1, 0.05, 0.2, 0.5, 0.15, 0.3, 0.4,
+              0.8, 0.5, 0.1, 0.05, 0.2, 0.5, 0.15, 0.4, 0.3,
+              0.8, 0.5, 0.1, 0.05, 0.4, 0.5, 0.15, 0.3, 0.2,
+              0.4, 0.5, 0.1, 0.05, 0.2, 0.5, 0.15, 0.3, 0.8,
+              0.8, 0.1, 0.5, 0.05, 0.2, 0.5, 0.15, 0.3, 0.4,
+              0.8, 0.5, 0.1, 0.05, 0.2, 0.15, 0.5, 0.3, 0.4,
+              0.15, 0.5, 0.1, 0.05, 0.2, 0.5, 0.8, 0.3, 0.4,
+              0.8, 0.05, 0.1, 0.5, 0.2, 0.5, 0.15, 0.3, 0.4,
+              0.8, 0.5, 0.1, 0.05, 0.5, 0.2, 0.15, 0.3, 0.4), nrow = J)
 
 # Build emission matrix
-B <- list(mu = c(1.26, 1.86, 2.6), sigma = c(1, 4, 7))
+B <- list(mu = c(0.16, 0.23, 0.283,
+                 0.329, 0.391, 0.457,
+                 0.51, 0.539, 0.57), 
+          sigma = c(0.043, 0.011, 0.017, 
+                    0.013, 0.017, 0.021,
+                    0.01, 0.008, 0.01))
 
 # Build hmm model
 model <- hmmspec(init = pi, trans = A, parms.emis = B, dens.emis = dnorm.hsmm, mstep = 10)
-model
+#model
 
 # EM algorithom fits an HMM to the data
 hmm <- hmmfit(N, model, mstep = mstep.norm, maxit = 500)
@@ -46,11 +61,15 @@ hmm <- hmmfit(N, model, mstep = mstep.norm, maxit = 500)
 # Summary
 summary(hmm)
 
-#plot(hmm$loglik, type = 'l', ylab = "log-likelihood", xlab = "Iteration")
-yhat <- predict(hmm, N)
+plot(hmm$loglik, type = 'l', ylab = "log-likelihood", xlab = "Iteration")
+#yhat <- predict(hmm, N)
 plot(yhat)
 
 
+
+# Test hmm model
+yhat1 <- predict(hmm, trainGap$x)
+yhat2 <- predict(hmm, testGap$x)
 # J <- 3
 # init <- c(0,0,1)
 # P <- matrix(c(0,.1,.4,.5,0,.6,.5,.9,0),nrow=J)
