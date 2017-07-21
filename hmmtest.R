@@ -46,7 +46,7 @@ pi <- c(runif(J, 0, 1))
 #               0.8, 0.05, 0.1, 0.5, 0.2, 0.5, 0.15, 0.3, 0.4,
 #               0.8, 0.5, 0.1, 0.05, 0.5, 0.2, 0.15, 0.3, 0.4), nrow = J)
 
-A <- matrix(c(runif(J*J, 0,1)))
+A <- matrix(runif(J*J, 0,1),nrow = J)
 
 # Build emission matrix
 B <- list(mu = c(runif(J, 0,1.5)), 
