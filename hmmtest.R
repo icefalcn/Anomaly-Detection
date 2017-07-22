@@ -9,7 +9,7 @@ train <- read.csv("train.csv", header = TRUE)
 test <- read.csv("test_v1.csv", header = TRUE)
 
 # Extract the global_active_power column
-trainGap <- formatMhsmm(data.frame(X = train$Global_active_power[1:10000]))
+trainGap <- formatMhsmm(data.frame(X = train$Global_active_power[1:300000]))
 testGap <- formatMhsmm(data.frame(test$Global_active_power[764437:774437]))
 
 # Load package
@@ -65,15 +65,18 @@ model <- hmmspec(init = pi, trans = A, parms.emis = B, dens.emis = dnorm.hsmm, m
 #model
 
 # EM algorithom fits an HMM to the data
-hmm <- hmmfit(trainGap$x, model, mstep = mstep.norm, maxit = 500)
+hmm_train <- hmmfit(trainGap$x, model, mstep = mstep.norm, maxit = 500)
+#hmm_test <- hmmfit(testGap$x, model, mstep = mstep.norm, maxit = 500)
 
 # Summary
-summary(hmm)
-plot(hmm$loglik, type = 'l', ylab = "log-likelihood", xlab = "Iteration")
+summary(hmm_train)
+plot(hmm_train$loglik, col = "red", type = 'b', 
+     ylab = "log-likelihood", xlab = "Iteration")
+#points(hmm_test$loglik, col = "blue", type = 'b')
 
 # Test hmm model
-yhat1 <- predict(hmm, trainGap$x)
-yhat2 <- predict(hmm, testGap$x)
+yhat1 <- predict(hmm_train, trainGap$x)
+yhat2 <- predict(hmm_train, testGap$x)
 
 # Plot
 plot(yhat1, type = 'l', ylab ='Global_active_power_train')
