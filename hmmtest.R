@@ -26,14 +26,16 @@ library(mhsmm)
 # Build hmm with univariant data
 
 # Set state number based on 10000 data in graph
-J <- 9
+J <- 10
 
 # Set init value pi
 # #pi <- rep(1/J, J)
 # pi <- c(0.111,0.050,0.081
 #         ,0.090,0.075,0.035
 #         ,0.250,0.170,0.138)
-pi <- c(runif(J, 0, 1))
+# pi <- c(runif(J, 0, 1))
+# x <- replicate(J, diff(c(0, sort(runif(1)), 1)))
+pi <- diff(c(0, sort(runif((J-1),0,1)), 1))
 
 # Build transition matrix A, entry by row
 # A <- matrix(c(0.8, 0.5, 0.1, 0.05, 0.2, 0.5, 0.15, 0.3, 0.4,
@@ -46,8 +48,9 @@ pi <- c(runif(J, 0, 1))
 #               0.8, 0.05, 0.1, 0.5, 0.2, 0.5, 0.15, 0.3, 0.4,
 #               0.8, 0.5, 0.1, 0.05, 0.5, 0.2, 0.15, 0.3, 0.4), nrow = J)
 
-A <- matrix(runif(J*J, 0,1),nrow = J)
-
+# A <- matrix(runif(J*J, 0,1),nrow = J)
+A <- matrix(replicate(J,diff(c(0, sort(runif((J-1),0,1)), 1))),nrow = J)
+base::t(A)   #transpose matrix
 # Build emission matrix
 B <- list(mu = c(runif(J, 0,1.5)), 
           sigma = c(runif(J, 0,0.5)))
@@ -63,7 +66,7 @@ hmm <- hmmfit(N, model, mstep = mstep.norm, maxit = 500)
 summary(hmm)
 
 plot(hmm$loglik, type = 'l', ylab = "log-likelihood", xlab = "Iteration")
-#yhat <- predict(hmm, N)
+yhat <- predict(hmm, N)
 plot(yhat)
 
 
