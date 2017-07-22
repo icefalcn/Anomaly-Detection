@@ -22,6 +22,7 @@ class(N) <- "hsmm.data"
 # Load package
 library(mvtnorm)
 library(mhsmm)
+library(ggplot2)
 
 # Build hmm with univariant data
 
@@ -52,8 +53,12 @@ pi <- diff(c(0, sort(runif((J-1),0,1)), 1))
 A <- matrix(replicate(J,diff(c(0, sort(runif((J-1),0,1)), 1))),nrow = J)
 base::t(A)   #transpose matrix
 # Build emission matrix
-B <- list(mu = c(runif(J, 0,1.5)), 
-          sigma = c(runif(J, 0,0.5)))
+
+meanN <- range(N)
+
+
+B <- list(mu = sort(c(runif(J, meanN[1],meanN[2]))), 
+          sigma = sort(c(runif(J, 0,sd(N)))))
 
 # Build hmm model
 model <- hmmspec(init = pi, trans = A, parms.emis = B, dens.emis = dnorm.hsmm, mstep = 10)
