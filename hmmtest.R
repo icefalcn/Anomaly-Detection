@@ -9,15 +9,14 @@ train <- read.csv("train.csv", header = TRUE)
 test <- read.csv("test_v1.csv", header = TRUE)
 
 # Extract the global_active_power column
-trainGap <- formatMhsmm(data.frame(X = train$Global_active_power[1:500000]))
-testGap <- formatMhsmm(data.frame(test$Global_active_power[1000:2000]))
+trainGap <- formatMhsmm(data.frame(X = train$Global_active_power))
+testGap <- formatMhsmm(data.frame(test$Global_active_power))
 
 # Load package
 library(mvtnorm)
 library(mhsmm)
 
 # Build hmm with univariant data
-
 # Set state number based on 10000 data in graph
 J <- 6
 
@@ -36,31 +35,46 @@ B <- list(mu = c(1.204, 1.02, 0.754, 1.334, 1.731, 1.514),
           sigma = c(0.989, 0.84, 0.785, 1.14, 1.302, 1.279))
 
 # Build hmm model
-model <- hmmspec(init = pi, trans = A, parms.emis = B, dens.emis = dnorm.hsmm, mstep = 10)
+modelspec <- hmmspec(init = pi, trans = A, parms.emis = B, dens.emis = dnorm.hsmm, mstep = 10)
 
 # EM algorithom fits an HMM to the data
-hmm_train <- hmmfit(trainGap$x, model, mstep = mstep.norm, maxit = 500)
-#hmm_test <- hmmfit(testGap$x, model, mstep = mstep.norm, maxit = 500)
+hmm_model <- hmmfit(trainGap$x, modelspec, mstep = mstep.norm, maxit = 500)
 
 # Summary
-summary(hmm_train)
-plot(hmm_train$loglik, col = "red", type = 'l', 
-     ylab = "log-likelihood", xlab = "Iteration")
-points(hmm_test$loglik, col = "blue", type = 'p')
+summary(hmm_model)
 
 # Test hmm model
-yhat1 <- predict(hmm_train, trainGap$x)
-yhat2 <- predict(hmm_train, testGap$x)
+yhat1 <- predict.hmm(hmm_model, trainGap$x)
+yhat2 <- predict.hmm(hmm_model, testGap$x)
 
-# Plot
 # plot(yhat1$x, col = 'red', type = 'b', ylab ='Global_active_power_train')
 # points(yhat2$x, col = 'cyan', type = 'b')
-#plot(yhat2, type = 'l', ylab ='Global_active_power_test')
+# plot(yhat2, type = 'l', ylab ='Global_active_power_test')
 
 plot(yhat1$x[1:20000], col = 'red', type = 'l')
-points(testGap$x[1:1000], col = 'blue', type = 'p')
+points(yhat2$x[1:10000], col = 'blue', type = 'p')
 legend('topright', legend=c("data by HMM", "observation"), 
        col=c('red', 'blue'), lty = c(1, NA), pch = c(NA, 1), cex = 0.6)
+
+# Define threshold value
+threshold = 0.5
+# build empty matrix
+result_matrix <- matrix(NA, nrow = length(testGap$x), ncol = 2)
+
+# point anomaly detection
+for (i in 1:length(testGap$x)) {
+  value = round(abs(yhat1$x[i] - yhat2$x[i]), 3)
+      if(value < threshold) {
+        result_matrix[i,1] = 0
+      } else{
+        result_matrix[i,1] = 1
+      }
+      result_matrix[i,2] <- value
+}
+
+# Write result to text file
+write.table(result_matrix, file=sprintf("anomaly_%s.txt", threshold), 
+            row.names = FALSE, col.names = FALSE)
 
 # J <- 3
 # init <- c(0,0,1)
