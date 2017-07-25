@@ -6,8 +6,11 @@ train <- read.csv("train.csv", header = TRUE)
 test <- read.csv("test_v1.csv")
 
 # Extract the global_active_power column
-Gap.col <- data.frame(X = train$Global_active_power[1:10000])
-#Tgap.col <- data.frame(test$Global_active_power[1:20000])
+#end of 2009 test1  43793
+#end of 2006 trian 21886
+#end of 2007 train 547596 $loglik [1] -166517.5 4states,   $loglik [1] -115154.9 6states
+Gap.col <- data.frame(X = train$Global_active_power[21996:547596])
+Tgap.col <- data.frame(test$Global_active_power[1:43793])
 # trainGap <- formatMhsmm(data.frame(X = train$Global_active_power[1:10000]))
 # testGap <- formatMhsmm(data.frame(test$Global_active_power[764437:774437]))
 
@@ -24,10 +27,10 @@ library(mvtnorm)
 library(mhsmm)
 library(ggplot2)
 
-# Build hmm with univariant data
+                                      # Build hmm with univariant data
 
 # Set state number based on 10000 data in graph
-J <- 10
+J <- 6
 
 # Set init value pi
 # #pi <- rep(1/J, J)
@@ -67,7 +70,10 @@ model <- hmmspec(init = pi, trans = A, parms.emis = B, dens.emis = dnorm.hsmm, m
 # EM algorithom fits an HMM to the data
 hmm <- hmmfit(N, model, mstep = mstep.norm, maxit = 500)
 
-# Summary
+
+
+
+                                # Summary
 summary(hmm)
 
 plot(hmm$loglik, type = 'l', ylab = "log-likelihood", xlab = "Iteration")
